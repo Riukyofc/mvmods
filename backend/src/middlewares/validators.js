@@ -16,7 +16,16 @@ const validateRequest = (req, res, next) => {
 // Validações para Produtos
 const productValidations = {
   presignedUrl: [
-    check('filename').notEmpty().withMessage('O nome do arquivo (filename) é obrigatório.'),
+    body('filename')
+    .notEmpty()
+    .withMessage('Nome do arquivo é obrigatório.')
+    .custom((value) => {
+      const extension = value.split('.').pop().toLowerCase();
+      if (!['zip', 'rar'].includes(extension)) {
+        throw new Error('Apenas arquivos .zip e .rar são permitidos.');
+      }
+      return true;
+    }),
     validateRequest
   ],
   createProduct: [

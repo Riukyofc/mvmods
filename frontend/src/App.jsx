@@ -523,6 +523,7 @@ function AdminAddProduct({ adminToken, onSave }) {
       return filePath;
     } catch (error) {
       setFileState('idle');
+      console.error("Erro detalhado do upload:", error.response?.data || error.message);
       throw error;
     }
   };
@@ -545,8 +546,8 @@ function AdminAddProduct({ adminToken, onSave }) {
       alert("Mod adicionado com sucesso!");
       onSave();
     } catch (error) {
-      console.error(error);
-      alert("Falha no upload");
+      const msg = error.response?.data?.message || error.message || "Erro desconhecido";
+      alert("Falha no upload: " + msg);
     }
   };
 
@@ -564,7 +565,13 @@ function AdminAddProduct({ adminToken, onSave }) {
             <textarea required rows="5" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full bg-black/50 border border-white/10 text-white px-6 py-4 rounded-2xl resize-none" placeholder="Descrição Detalhada"></textarea>
           </div>
           <div className="flex flex-col h-full relative">
-            <input type="file" className="absolute inset-0 w-full h-full opacity-0 z-50 cursor-pointer" onChange={handleFileSelect} disabled={fileState !== 'idle'} />
+            <input 
+              type="file" 
+              accept=".zip,.rar" 
+              className="absolute inset-0 w-full h-full opacity-0 z-50 cursor-pointer" 
+              onChange={handleFileSelect} 
+              disabled={fileState !== 'idle'} 
+            />
             <div className={`flex-1 border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center p-12 min-h-[400px] ${fileState === 'uploading' ? 'border-red-500' : 'border-white/20'}`}>
               {fileState === 'idle' && (
                 <div className="text-center text-zinc-400">

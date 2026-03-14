@@ -15,9 +15,17 @@ const verifyToken = async (req, res, next) => {
 
   const token = authHeader.split('Bearer ')[1];
 
-  try {
     const decodedToken = await admin.auth().verifyIdToken(token);
-    req.user = decodedToken; // Anexa as infos do usuário logado na Request
+    
+    // Trava de segurança: Apenas o email do proprietário pode acessar rotas Admin
+    if (decodedToken.email !== 'alexcastrocutrim@gmail.com') {
+      return res.status(403).json({
+        success: false,
+        message: 'Acesso negado. Apenas o administrador principal pode realizar esta ação.'
+      });
+    }
+
+    req.user = decodedToken;
     next();
   } catch (error) {
     console.error('Erro de autenticação:', error.message);
