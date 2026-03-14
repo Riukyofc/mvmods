@@ -14,17 +14,19 @@ try {
     serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
   }
 
+  const bucketName = process.env.FIREBASE_STORAGE_BUCKET || "mvmods-1ab81.firebasestorage.app";
+
   admin.initializeApp({
     credential: serviceAccount ? admin.credential.cert(serviceAccount) : admin.credential.applicationDefault(),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET
+    storageBucket: bucketName
   });
 
   console.log("Firebase Admin Initialized Successfully");
 } catch (error) {
-  console.log("Firebase Admin Initialization Error (se você ainda não configurou as credenciais, ignore por enquanto):", error.message);
+  console.log("Firebase Admin Initialization Error:", error.message);
 }
 
 const db = admin.firestore();
-const bucket = admin.storage().bucket();
+const bucket = admin.storage().bucket(process.env.FIREBASE_STORAGE_BUCKET || "mvmods-1ab81.firebasestorage.app");
 
 module.exports = { admin, db, bucket };
