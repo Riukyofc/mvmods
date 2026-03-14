@@ -44,6 +44,12 @@ export default function App() {
     return () => unsubscribe();
   }, [currentView]);
 
+  // Helper para garantir token sempre fresco
+  const getFreshToken = async () => {
+    if (!auth.currentUser) return null;
+    return await getIdToken(auth.currentUser, true); // true força refresh se necessário
+  };
+
   // Carregar produtos da API aberta
   const fetchProducts = async () => {
     try {
@@ -395,14 +401,14 @@ function RedeemPage() {
 // --------------------------------------------------------------------------------
 // ADMIN DASHBOARD
 // --------------------------------------------------------------------------------
-function AdminDashboard({ adminToken, products, setProducts, keys, setKeys, fetchProducts, onLogout }) {
+function AdminDashboard({ products, setProducts, keys, setKeys, fetchProducts, onLogout }) {
   const [activeTab, setActiveTab] = useState('products');
 
   useEffect(() => {
     const fetchKeys = async () => {
-      if(!adminToken) return;
       try {
-        const { data } = await api.get('/keys', { headers: { Authorization: `Bearer ${adminToken}` }});
+        const token = await getIdToken(auth.currentUser, true);
+        const { data } = await api.get('/keys', { headers: { Authorization: `Bearer ${token}` }});
         if(data.success) {
           setKeys(data.data);
         }
@@ -413,7 +419,7 @@ function AdminDashboard({ adminToken, products, setProducts, keys, setKeys, fetc
     if (activeTab === 'keys') {
       fetchKeys();
     }
-  }, [adminToken, activeTab, setKeys]);
+  }, [activeTab, setKeys]);
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 mt-8">
@@ -439,19 +445,20 @@ function AdminDashboard({ adminToken, products, setProducts, keys, setKeys, fetc
       </div>
 
       <div className="flex-1 glass-panel rounded-[2.5rem] p-8 sm:p-12 min-h-[800px] shadow-2xl">
-        {activeTab === 'products' && <AdminProductsList adminToken={adminToken} products={products} setProducts={setProducts} onAdd={() => setActiveTab('add-product')} fetchProducts={fetchProducts} />}
-        {activeTab === 'add-product' && <AdminAddProduct adminToken={adminToken} onSave={() => { fetchProducts(); setActiveTab('products'); }} />}
-        {activeTab === 'keys' && <AdminKeyManager adminToken={adminToken} products={products} keys={keys} setKeys={setKeys} />}
+        {activeTab === 'products' && <AdminProductsList products={products} setProducts={setProducts} onAdd={() => setActiveTab('add-product')} fetchProducts={fetchProducts} />}
+        {activeTab === 'add-product' && <AdminAddProduct onSave={() => { fetchProducts(); setActiveTab('products'); }} />}
+        {activeTab === 'keys' && <AdminKeyManager products={products} keys={keys} setKeys={setKeys} />}
       </div>
     </div>
   );
 }
 
-function AdminProductsList({ adminToken, products, onAdd, fetchProducts }) {
+function AdminProductsList({ products, onAdd, fetchProducts }) {
   const handleDelete = async (productId) => {
     if(!window.confirm("Deseja mesmo eliminar este mod? O arquivo será deletado permanentemente do Banco de Dados!")) return;
     try {
-      await api.delete(`/products/${productId}`, { headers: { Authorization: `Bearer ${adminToken}` }});
+      const token = await getIdToken(auth.currentUser, true);
+      await api.delete(`/products/${productId}`, { headers: { Authorization: `Bearer ${token}` }});
       fetchProducts();
     } catch(err) {
       alert("Erro ao excluir: " + err.message);
@@ -507,7 +514,8 @@ function AdminAddProduct({ adminToken, onSave }) {
     setFileState('uploading');
     
     try {
-      const resURL = await api.post('/products/presigned-url', { filename: selectedFile.name, contentType: selectedFile.type }, { headers: { Authorization: `Bearer ${adminToken}` }});
+      const token = await getIdToken(auth.currentUser, true);
+      const resURL = await api.post('/products/presigned-url', { filename: selectedFile.name, contentType: selectedFile.type }, { headers: { Authorization: `Bearer ${token}` }});
       const { uploadUrl, filePath } = resURL.data.data;
       
       // Axios PUT direto p/ Cloud Storage com Barra de Progresso Real
@@ -533,6 +541,7 @@ function AdminAddProduct({ adminToken, onSave }) {
     if (!selectedFile) return alert("Selecione o ficheiro do mod.");
     try {
       const filePath = await uploadFileToStorage();
+      const token = await getIdToken(auth.currentUser, true);
 
       await api.post('/products', {
         title: formData.title,
@@ -541,7 +550,7 @@ function AdminAddProduct({ adminToken, onSave }) {
         demo: formData.demo,
         filePath: filePath,
         filesize: `${(selectedFile.size / (1024*1024*1024)).toFixed(2)} GB`
-      }, { headers: { Authorization: `Bearer ${adminToken}` }});
+      }, { headers: { Authorization: `Bearer ${token}` }});
 
       alert("Mod adicionado com sucesso!");
       onSave();
@@ -608,7 +617,8 @@ function AdminKeyManager({ adminToken, products, keys, setKeys }) {
 
   const handleGenerate = async () => {
     try {
-      const { data } = await api.post('/keys', { productId: selectedProduct, duration }, { headers: { Authorization: `Bearer ${adminToken}` }});
+      const token = await getIdToken(auth.currentUser, true);
+      const { data } = await api.post('/keys', { productId: selectedProduct, duration }, { headers: { Authorization: `Bearer ${token}` }});
       if(data.success) {
         setGeneratedKey(data.data.code);
         setKeys([data.data, ...keys]);
