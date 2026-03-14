@@ -15,6 +15,7 @@ const verifyToken = async (req, res, next) => {
 
   const token = authHeader.split('Bearer ')[1];
 
+  try {
     const decodedToken = await admin.auth().verifyIdToken(token);
     
     // Trava de segurança: Apenas o email do proprietário pode acessar rotas Admin
