@@ -4,7 +4,13 @@ const admin = require('firebase-admin');
 // ou usar as variáveis de ambiente do Google Cloud (Application Default Credentials).
 try {
   let serviceAccount;
-  if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
+  
+  // Se houver uma variável com o JSON completo (Recomendado para Railway/Vercel/Render)
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } 
+  // Caso contrário, tenta pelo caminho do arquivo
+  else if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
     serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
   }
 
