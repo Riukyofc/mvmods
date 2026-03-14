@@ -31,10 +31,10 @@ export default function App() {
   // Listener Master de Autenticação Firebase
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+      if (user && user.email === 'alexcastrocutrim@gmail.com') {
         setIsAdmin(true);
         const token = await getIdToken(user);
-        setAdminToken(token); // Guarda o token para mandar para o Backend Protegido
+        setAdminToken(token);
       } else {
         setIsAdmin(false);
         setAdminToken(null);
@@ -129,8 +129,8 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigate('store')}>
-              <div className="relative overflow-hidden rounded-xl transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] bg-black p-1 border border-zinc-800">
-                <div className="w-12 h-12 bg-red-600 flex items-center justify-center font-black text-xl text-white rounded-lg">MV</div>
+              <div className="relative overflow-hidden rounded-xl transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] bg-black border border-zinc-800">
+                <img src="/logo.webp" alt="MV Logo" className="w-12 h-12 object-contain p-1" />
               </div>
               <div className="flex flex-col">
                 <span className="font-black text-xl tracking-widest text-white uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] group-hover:text-red-50 transition-colors">
