@@ -407,7 +407,7 @@ function AdminDashboard({ products, setProducts, keys, setKeys, fetchProducts, o
   useEffect(() => {
     const fetchKeys = async () => {
       try {
-        const token = await getIdToken(auth.currentUser, true);
+        const token = await auth.currentUser.getIdToken(true);
         const { data } = await api.get('/keys', { headers: { Authorization: `Bearer ${token}` }});
         if(data.success) {
           setKeys(data.data);
@@ -457,7 +457,7 @@ function AdminProductsList({ products, onAdd, fetchProducts }) {
   const handleDelete = async (productId) => {
     if(!window.confirm("Deseja mesmo eliminar este mod? O arquivo será deletado permanentemente do Banco de Dados!")) return;
     try {
-      const token = await getIdToken(auth.currentUser, true);
+      const token = await auth.currentUser.getIdToken(true);
       await api.delete(`/products/${productId}`, { headers: { Authorization: `Bearer ${token}` }});
       fetchProducts();
     } catch(err) {
@@ -514,7 +514,7 @@ function AdminAddProduct({ adminToken, onSave }) {
     setFileState('uploading');
     
     try {
-      const token = await getIdToken(auth.currentUser, true);
+      const token = await auth.currentUser.getIdToken(true);
       const resURL = await api.post('/products/presigned-url', { filename: selectedFile.name, contentType: selectedFile.type }, { headers: { Authorization: `Bearer ${token}` }});
       const { uploadUrl, filePath } = resURL.data.data;
       
@@ -541,7 +541,7 @@ function AdminAddProduct({ adminToken, onSave }) {
     if (!selectedFile) return alert("Selecione o ficheiro do mod.");
     try {
       const filePath = await uploadFileToStorage();
-      const token = await getIdToken(auth.currentUser, true);
+      const token = await auth.currentUser.getIdToken(true);
 
       await api.post('/products', {
         title: formData.title,
@@ -617,7 +617,7 @@ function AdminKeyManager({ adminToken, products, keys, setKeys }) {
 
   const handleGenerate = async () => {
     try {
-      const token = await getIdToken(auth.currentUser, true);
+      const token = await auth.currentUser.getIdToken(true);
       const { data } = await api.post('/keys', { productId: selectedProduct, duration }, { headers: { Authorization: `Bearer ${token}` }});
       if(data.success) {
         setGeneratedKey(data.data.code);

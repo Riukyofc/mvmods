@@ -29,10 +29,11 @@ const verifyToken = async (req, res, next) => {
     req.user = decodedToken;
     next();
   } catch (error) {
-    console.error('Erro de autenticação:', error.message);
+    console.error('Erro de autenticação (DETALHADO):', error.message);
     return res.status(403).json({
       success: false,
-      message: 'Token inválido ou expirado.'
+      message: `Erro de Autenticação: ${error.message}`,
+      debug: error.code // Ajuda a identificar se é project-id-mismatch, etc.
     });
   }
 };

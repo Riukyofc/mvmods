@@ -22,6 +22,8 @@ try {
   });
 
   console.log("Firebase Admin Initialized Successfully");
+  console.log("Project ID:", serviceAccount ? serviceAccount.project_id : "Default (ADC)");
+  console.log("Storage Bucket:", bucketName);
 } catch (error) {
   console.log("Firebase Admin Initialization Error:", error.message);
 }
