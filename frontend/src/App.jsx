@@ -549,7 +549,9 @@ function AdminAddProduct({ adminToken, onSave }) {
         image: formData.image,
         demo: formData.demo,
         filePath: filePath,
-        filesize: `${(selectedFile.size / (1024*1024*1024)).toFixed(2)} GB`
+        filesize: selectedFile.size >= 1024 * 1024 * 1024 
+          ? `${(selectedFile.size / (1024 * 1024 * 1024)).toFixed(2)} GB`
+          : `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB`
       }, { headers: { Authorization: `Bearer ${token}` }});
 
       alert("Mod adicionado com sucesso!");

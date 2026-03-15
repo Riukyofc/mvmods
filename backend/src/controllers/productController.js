@@ -13,7 +13,7 @@ exports.generatePresignedUrl = async (req, res, next) => {
 
     const options = {
       version: 'v4',
-      action: 'resumable', 
+      action: 'write', 
       expires: Date.now() + 15 * 60 * 1000, 
     };
 

@@ -1,4 +1,4 @@
-const { validationResult, check } = require('express-validator');
+const { validationResult, check, body } = require('express-validator');
 
 // Middleware Genérico para retornar erros do express-validator
 const validateRequest = (req, res, next) => {
